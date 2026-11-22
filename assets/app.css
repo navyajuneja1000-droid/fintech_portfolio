@@ -85,6 +85,10 @@ p { margin: 0; }
 .snav a:hover { background: var(--panel-2); }
 .snav a[aria-current="page"] { background: var(--accent-soft); color: var(--ink); }
 .snav a[aria-current="page"] svg { color: var(--accent); }
+.snav a .xi { margin-left: auto; display: grid; opacity: .55; }
+.snav a .xi svg { width: 14px; height: 14px; }
+.snav a:hover .xi { opacity: 1; }
+.snav .nsub { display: block; font-size: 11.5px; font-weight: 500; color: var(--mute); margin-top: 1px; }
 .snav .sec { font-size: 10.5px; text-transform: uppercase; letter-spacing: .09em; color: var(--mute); font-weight: 800; padding: 14px 10px 4px; }
 .side .side-foot { margin-top: auto; padding: 14px 18px 18px; font-size: 11.5px; color: var(--mute); border-top: 1px solid var(--line); }
 .side .side-foot a { color: var(--mute); }

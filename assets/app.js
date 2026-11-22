@@ -36,6 +36,8 @@
     check: ic('<path d="M5 12l4 4 10-10"/>'),
     dot: ic('<circle cx="12" cy="12" r="3"/>'),
     copy: ic('<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"/>'),
+    live: ic('<rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4M7 12l3-3 2 2 4-4"/>'),
+    calc: ic('<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 7h8M8 11h2M12 11h2M16 11h0M8 15h2M12 15h2M8 18h2M12 18h4"/>'),
     menu: ic('<path d="M4 7h16M4 12h16M4 17h16"/>'),
     user: ic('<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>'),
     mail: ic('<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/>'),
@@ -110,13 +112,22 @@
     { h: "#/phonepe", t: "PhonePe", i: "bank", r: "phonepe" },
     { h: "#/cases", t: "Transactions", i: "list", r: "cases" },
     { h: "#/lifecycle", t: "Payment lifecycle", i: "flow", r: "lifecycle" },
-    { sec: "Tools" },
-    { h: "#/simulator", t: "Routing simulator", i: "sliders", r: "simulator" },
     { h: "#/fit", t: "Company fit", i: "target", r: "fit" },
+    { sec: "Live builds" },
+    { h: "https://www.reconos.in", t: "ReconOS", i: "live", ext: true, s: "Revenue recovery for D2C" },
+    { h: "https://workflowmidprocurement.vercel.app/", t: "MID Procurement", i: "live", ext: true, s: "Acquirer onboarding tracker" },
+    { h: "https://route-wise-ai-51.lovable.app", t: "RouteIQ prototype", i: "live", ext: true, s: "Dynamic routing PRD, built" },
+    { sec: "Try it here" },
+    { h: "#/simulator", t: "Routing simulator", i: "sliders", r: "simulator" },
+    { h: "#/simulator/settlement", t: "Settlement calculator", i: "calc", r: "settlement" },
     { sec: "Account" },
     { h: "#/experience", t: "Experience ledger", i: "book", r: "experience" },
     { h: "#/hire", t: "Settlement report", i: "send", r: "hire" }
   ];
+  function navLink(n) {
+    if (n.ext) return '<li><a href="' + n.h + '" target="_blank" rel="noopener" title="' + esc(n.s) + ' (opens in a new tab)">' + I[n.i] + '<span>' + n.t + '<small class="nsub">' + esc(n.s) + '</small></span><i class="xi" aria-hidden="true">' + I.ext + '</i><span class="vh"> (opens in a new tab)</span></a></li>';
+    return '<li><a href="' + n.h + '" data-r="' + n.r + '">' + I[n.i] + "<span>" + n.t + "</span></a></li>";
+  }
   function fitSelect(id) {
     if (!EDIT) return "";
     return '<div class="fitsel"><label for="' + id + '">Tailored for</label><select id="' + id + '" data-act="fit" aria-label="Tailor this portfolio for a company">' +
@@ -130,7 +141,7 @@
       '<div class="acct"><img src="assets/portrait.jpg" alt="Portrait of Navya Juneja"><div><b>Open to work</b><small><span class="live-dot"></span>Payments · Gurgaon</small></div></div>' +
       '<ul class="snav">' + NAV.map(function (n) {
         if (n.sec) return '<li class="sec">' + n.sec + "</li>";
-        return '<li><a href="' + n.h + '" data-r="' + n.r + '">' + I[n.i] + "<span>" + n.t + "</span></a></li>";
+        return navLink(n);
       }).join("") + "</ul>" +
       '<div class="side-foot"><a href="' + P.resume + '" download>Résumé (PDF)</a> · <a href="' + P.portfolio + '" target="_blank" rel="noopener">Main portfolio</a></div>';
     $("#top").innerHTML =
@@ -325,7 +336,7 @@
   function vSimulator(tab) {
     tab = tab === "settlement" ? "settlement" : "routing";
     var h = '<div style="margin-bottom:16px"><p class="eyebrow">Tools</p><h1 class="h1">' + (tab === "routing" ? "Routing simulator" : "Follow the money") + '</h1><p class="lede" style="margin-top:6px">' +
-      (tab === "routing" ? "Split a month of payments across three acquirers. Watch blended success, cost, and the merchant's contribution move. The best success rate is not always the best route." : "From gross sales to what lands in the bank: MDR, GST on MDR, refunds, and the gap between the contract and what was charged.") +
+      (tab === "routing" ? "Split a month of payments across three acquirers. Watch blended success, cost, and the merchant's contribution move. The best success rate is not always the best route. This is a demo with made-up numbers, built for this page; my routing work is the PhonePe case, and RouteIQ is a separate prototype." : "From gross sales to what lands in the bank: MDR, GST on MDR, refunds, and the gap between the contract and what was charged.") +
       '</p></div><div class="row" style="margin-bottom:16px"><div class="seg" role="group" aria-label="Choose tool"><button type="button" data-act="go" data-h="#/simulator" aria-pressed="' + (tab === "routing") + '">Routing simulator</button><button type="button" data-act="go" data-h="#/simulator/settlement" aria-pressed="' + (tab === "settlement") + '">Settlement calculator</button></div>' + chip("modelled") + '<span class="muted" style="font-size:13px">All numbers are illustrative and editable. Acquirers are invented.</span></div>';
     return h + (tab === "routing" ? simRouting() : simSettle());
   }
@@ -454,7 +465,7 @@
   }
 
   function vMenu() {
-    return '<div style="margin-bottom:16px"><p class="eyebrow">Menu</p><h1 class="h1">Everything in this console</h1></div><section class="panel"><ul class="snav" style="padding:10px">' + NAV.map(function (n) { return n.sec ? '<li class="sec">' + n.sec + "</li>" : '<li><a href="' + n.h + '">' + I[n.i] + "<span>" + n.t + "</span></a></li>"; }).join("") + '</ul><div class="pb row"><button class="btn" type="button" data-act="theme">' + themeIcon() + ' Switch theme</button><a class="btn" href="' + D.person.resume + '" download>' + I.file + " Résumé</a></div></section>";
+    return '<div style="margin-bottom:16px"><p class="eyebrow">Menu</p><h1 class="h1">Everything in this console</h1></div><section class="panel"><ul class="snav" style="padding:10px">' + NAV.map(function (n) { return n.sec ? '<li class="sec">' + n.sec + "</li>" : navLink(n); }).join("") + '</ul><div class="pb row"><button class="btn" type="button" data-act="theme">' + themeIcon() + ' Switch theme</button><a class="btn" href="' + D.person.resume + '" download>' + I.file + " Résumé</a></div></section>";
   }
   function vNotFound() { return '<section class="panel"><div class="ph"><div><h2>Declined: no such page</h2><p>That link doesn\'t lead anywhere.</p></div><a class="btn pri" href="#/">Back to overview</a></div></section>'; }
 
@@ -484,7 +495,7 @@
       default: html = vNotFound(); key = "";
     }
     $("#view").innerHTML = html;
-    markNav(key);
+    markNav(key === "simulator" && p[1] === "settlement" ? "settlement" : key);
     var crumbName = key === "cases" && p[0] === "case" && CASE[p[1]] ? CASE[p[1]].short : (TITLES[key] || "Not found");
     $("#crumb").innerHTML = "Console / <b>" + esc(crumbName) + "</b>" + (S.fit !== "generic" ? " · for " + esc(fit().short) : "");
     document.title = (key === "home" ? "Navya Juneja · Payments Console" : crumbName + " · Navya Juneja, payments");
