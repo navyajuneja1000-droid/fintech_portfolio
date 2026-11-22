@@ -19,7 +19,7 @@ Static site: `index.html` + `assets/app.css` + `assets/app.js` + `assets/data.js
 | `#/experience` | Experience ledger, how I work, certifications |
 | `#/hire` | Settlement report: contact details and an email-drafting form (opens `mailto:`, sends nothing itself) |
 
-**Fit switcher.** Choose a company in the top bar, or share a link like `index.html?for=razorpay`. Values: `razorpay`, `pinelabs`, `juspay`, `payu`, `cashfree`, `cred` (default: any team). The choice is remembered in this browser only.
+- **Company links.** Send a link like `?for=razorpay` (values: `razorpay`, `pinelabs`, `juspay`, `payu`, `cashfree`, `cred`). Visitors see only that company: no switcher, no list of other companies, and the footer names only PhonePe and that company. A link with no `for=` is the general version and names no company. **Private preview:** add `&edit` (e.g. `?for=juspay&edit`) to see the "Tailored for" switcher and every company's view. Don't send `&edit` links to recruiters.
 
 ## Provenance labels
 

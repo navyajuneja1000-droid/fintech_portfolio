@@ -51,21 +51,27 @@
     txf: "all",
     sim: load("sim", null)
   };
+  /* Visitors see only the company in their link. The switcher, company tabs and share button
+     appear only in the private preview: add &edit (or ?edit) to the link. */
+  var EDIT = /[?&]edit(=|&|$)/i.test(location.search) || /[?&]edit(=|&|$)/i.test(location.hash);
   function readFit() {
     var q = (location.search.match(/[?&]for=([a-z]+)/i) || [])[1] || (location.hash.match(/[?&]for=([a-z]+)/i) || [])[1];
     if (q && D.fits[q.toLowerCase()]) return q.toLowerCase();
+    if (!EDIT) return "generic";
     var s = load("fit", "generic");
     return D.fits[s] ? s : "generic";
   }
   function setFit(id, silent) {
     if (!D.fits[id]) id = "generic";
-    S.fit = id; save("fit", id);
+    if (!EDIT && S.locked && id !== S.fit) return;
+    S.fit = id; if (EDIT) save("fit", id);
     try {
-      var url = location.pathname + (id === "generic" ? "" : "?for=" + id) + location.hash.replace(/[?&]for=[a-z]+/i, "");
+      var qs = [id === "generic" ? "" : "for=" + id, EDIT ? "edit" : ""].filter(Boolean).join("&");
+      var url = location.pathname + (qs ? "?" + qs : "") + location.hash.replace(/[?&]for=[a-z]+/i, "");
       history.replaceState(null, "", url);
     } catch (e) {}
     $$(".fitsel select").forEach(function (s) { s.value = id; });
-    if (!silent) { rerender(); toast("Viewing as " + D.fits[id].name); }
+    if (!silent) { rerender(); toast("Preview: tailored for " + (id === "generic" ? "any team" : D.fits[id].name)); }
   }
   function fit() { return D.fits[S.fit]; }
 
@@ -112,8 +118,9 @@
     { h: "#/hire", t: "Settlement report", i: "send", r: "hire" }
   ];
   function fitSelect(id) {
-    return '<div class="fitsel"><label for="' + id + '">Viewing as</label><select id="' + id + '" data-act="fit" aria-label="Tailor this portfolio for a company">' +
-      D.fitOrder.map(function (k) { return '<option value="' + k + '"' + (k === S.fit ? " selected" : "") + ">" + esc(k === "generic" ? "Any team" : D.fits[k].short) + "</option>"; }).join("") + "</select></div>";
+    if (!EDIT) return "";
+    return '<div class="fitsel"><label for="' + id + '">Tailored for</label><select id="' + id + '" data-act="fit" aria-label="Tailor this portfolio for a company">' +
+      D.fitOrder.map(function (k) { return '<option value="' + k + '"' + (k === S.fit ? " selected" : "") + ">" + esc(k === "generic" ? "General" : D.fits[k].short) + "</option>"; }).join("") + "</select></div>";
   }
   function themeIcon() { return document.documentElement.getAttribute("data-theme") === "dark" || (!document.documentElement.getAttribute("data-theme") && window.matchMedia("(prefers-color-scheme: dark)").matches) ? I.sun : I.moon; }
   function renderShell() {
@@ -142,7 +149,7 @@
   function renderFoot() {
     var P = D.person;
     $("#foot").innerHTML = '<div class="in"><div class="row" style="gap:14px"><a href="mailto:' + P.email + '">' + P.email + '</a><a href="' + P.phoneHref + '">' + P.phone + '</a><a href="' + P.linkedin + '" target="_blank" rel="noopener">' + P.linkedinShort + '</a><a href="' + P.portfolio + '" target="_blank" rel="noopener">Main portfolio</a></div>' +
-      "<p>Independent job-application portfolio by Navya Juneja. Not affiliated with or endorsed by PhonePe, Pine Labs, Razorpay, CRED, Juspay, PayU, Cashfree, Visa, Mastercard or any company named here. Company names are used in text only; facts about them are linked to their own public pages. The logo mark is an original drawing. PhonePe figures are as stated on my CV.</p></div>";
+      "<p>Independent job-application portfolio by Navya Juneja. Not affiliated with or endorsed by PhonePe" + (S.fit !== "generic" ? ", " + esc(D.fits[S.fit].name) : "") + ", Visa, Mastercard or any company named here. Company names are used in text only; facts about them are linked to their own public pages. The logo mark is an original drawing. PhonePe figures are as stated on my CV.</p></div>";
   }
   function markNav(r) {
     $$("[data-r]").forEach(function (a) { if (a.getAttribute("data-r") === r) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current"); });
@@ -172,10 +179,11 @@
   function fitStrip() {
     var f = fit();
     if (S.fit === "generic") {
+      if (!EDIT) return "";
       return '<section class="panel" style="margin-bottom:16px">' + panelHead("Tailor this console", "Pick a company to see which of my cases map to its products, with sourced facts and my hypotheses.") +
         '<div class="pb"><div class="fit-tabs">' + D.fitOrder.filter(function (k) { return k !== "generic"; }).map(function (k) { return '<a href="#/fit/' + k + '" data-fit="' + k + '">' + esc(D.fits[k].short) + "</a>"; }).join("") + "</div></div></section>";
     }
-    return '<section class="panel" style="margin-bottom:16px">' + panelHead("Viewing as " + esc(f.name), esc(f.line), '<a class="btn sm" href="#/fit/' + S.fit + '">Full fit view ' + I.next + "</a>") +
+    return '<section class="panel" style="margin-bottom:16px">' + panelHead("Navya × " + esc(f.name), esc(f.line), '<a class="btn sm" href="#/fit/' + S.fit + '">Full fit view ' + I.next + "</a>") +
       '<div class="pb"><div class="grid g3">' + f.hyp.map(function (h) { return '<div class="hyp"><span class="chip hyp">Hypothesis</span><h4>' + esc(h.h) + "</h4></div>"; }).join("") + "</div></div></section>";
   }
   function vHome() {
@@ -396,9 +404,9 @@
     if (id && D.fits[id] && id !== S.fit) setFit(id, true);
     var f = fit(), k = S.fit;
     var h = '<div style="margin-bottom:16px"><p class="eyebrow">Company fit</p><h1 class="h1">' + (k === "generic" ? "Fit, for any payments team" : "Navya × " + esc(f.name)) + '</h1><p class="lede" style="margin-top:6px">' + esc(f.line) + "</p></div>" +
-      '<section class="panel fit-hero" style="margin-bottom:16px"><div class="fit-tabs" role="list">' + D.fitOrder.map(function (x) { return '<a role="listitem" href="#/fit/' + x + '" data-fit="' + x + '"' + (x === k ? ' aria-current="true"' : "") + ">" + esc(x === "generic" ? "Any team" : D.fits[x].short) + "</a>"; }).join("") + '</div><p class="note">' + I.info + '<span>Share a tailored link: <button type="button" class="btn sm" data-act="copyfit">' + I.copy + " Copy link for " + esc(f.short) + "</button></span></p></section>";
+      (!EDIT ? "" : '<section class="panel fit-hero" style="margin-bottom:16px"><div class="fit-tabs" role="list">' + D.fitOrder.map(function (x) { return '<a role="listitem" href="#/fit/' + x + '" data-fit="' + x + '"' + (x === k ? ' aria-current="true"' : "") + ">" + esc(x === "generic" ? "Any team" : D.fits[x].short) + "</a>"; }).join("") + '</div><p class="note">' + I.info + '<span>Share a tailored link: <button type="button" class="btn sm" data-act="copyfit">' + I.copy + " Copy link for " + esc(f.short) + "</button></span></p></section>");
     h += '<div class="grid g2" style="align-items:start">';
-    h += '<section class="panel">' + panelHead("What " + (k === "generic" ? "payments teams run" : esc(f.name) + " says it does"), k === "generic" ? "Pick a company above for sourced facts." : "From the company's own public pages, fetched November 2026.") +
+    h += '<section class="panel">' + panelHead("What " + (k === "generic" ? "payments teams run" : esc(f.name) + " says it does"), k === "generic" ? (EDIT ? "Pick a company above for sourced facts." : "The parts of the stack every payments company runs.") : "From the company's own public pages, fetched November 2026.") +
       (f.facts.length ? '<ul class="facts">' + f.facts.map(function (x) { return "<li><p>" + esc(x.t) + '</p><div class="srcline">' + chip("sourced") + srcLink(x.u, host(x.u) + x.u.replace(/^https?:\/\/[^/]+/, "").slice(0, 46)) + "</div></li>"; }).join("") + "</ul>" : '<div class="pb"><p class="muted">The cases below map to the parts of the stack every payments company runs.</p></div>') + "</section>";
     h += '<section class="panel">' + panelHead("Where my cases map", "Product area → the cases that prove I've worked on it.") + f.map.map(function (m) { return '<div class="maprow"><b>' + esc(m[0]) + '</b><div class="row">' + m[1].map(function (id) { return caseLink(id); }).join("") + "</div></div>"; }).join("") + "</section>";
     h += "</div>";
@@ -531,7 +539,7 @@
     D.cases.forEach(function (c) { IDX.push({ k: c.ref, t: c.short, s: c.name, h: "#/case/" + c.id, x: (c.name + " " + c.hook + " " + c.summary.did + " " + c.ref).toLowerCase() }); });
     Object.keys(D.glossary).forEach(function (k) { var g = D.glossary[k]; IDX.push({ k: "TERM", t: g.t, s: g.d, term: k, x: (g.t + " " + g.d).toLowerCase() }); });
     D.stages.forEach(function (s) { IDX.push({ k: "STAGE " + s.n, t: s.name, s: s.what, h: "#/lifecycle/" + s.id, x: (s.name + " " + s.what + " " + s.mine).toLowerCase() }); });
-    D.fitOrder.forEach(function (k) { if (k !== "generic") IDX.push({ k: "FIT", t: D.fits[k].name, s: D.fits[k].line, h: "#/fit/" + k, x: (D.fits[k].name + " fit " + D.fits[k].line).toLowerCase() }); });
+    D.fitOrder.forEach(function (k) { if (k !== "generic" && (EDIT || k === S.fit)) IDX.push({ k: "FIT", t: D.fits[k].name, s: D.fits[k].line, h: "#/fit/" + k, x: (D.fits[k].name + " fit " + D.fits[k].line).toLowerCase() }); });
     [["TOOL", "Routing simulator", "Split traffic across acquirers", "#/simulator", "routing simulator split acquirer success mdr"], ["TOOL", "Settlement calculator", "MDR, GST, net settlement, leak", "#/simulator/settlement", "settlement calculator follow the money mdr gst leak"], ["PAGE", "Settlement report", "Contact and interview request", "#/hire", "hire contact email phone interview resume"], ["PAGE", "Experience ledger", "Work and education", "#/experience", "experience education cogent christ masters union"]].forEach(function (r) { IDX.push({ k: r[0], t: r[1], s: r[2], h: r[3], x: r[4] }); });
   }
   var qSel = -1;
@@ -607,7 +615,7 @@
     });
     $("#qdrop").addEventListener("click", function (e) { var a = e.target.closest("a"); if (a && !a.getAttribute("data-act")) { $("#q").value = ""; hideDrop(); } });
     window.addEventListener("hashchange", function () {
-      var m = location.hash.match(/[?&]for=([a-z]+)/i); if (m && D.fits[m[1]] && m[1] !== S.fit) setFit(m[1], true);
+      var m = location.hash.match(/[?&]for=([a-z]+)/i); if (EDIT && m && D.fits[m[1]] && m[1] !== S.fit) setFit(m[1], true);
       route();
     });
   }
@@ -645,6 +653,12 @@
 
   /* ---------- boot ---------- */
   S.fit = readFit();
+  S.locked = !EDIT;
+  (function () {
+    var nf = NAV.filter(function (n) { return n.r === "fit"; })[0]; if (!nf || EDIT) return;
+    if (S.fit === "generic") NAV.splice(NAV.indexOf(nf), 1);
+    else { nf.h = "#/fit/" + S.fit; nf.t = "Fit with " + D.fits[S.fit].short; }
+  })();
   if (S.fit !== "generic") setFit(S.fit, true);
   renderShell();
   buildIndex();
