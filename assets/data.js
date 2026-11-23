@@ -306,16 +306,16 @@ window.NJ = {
 
     /* ---- beyond payments ---- */
     { id: "h2h", ref: "BYD-01", seller: "cogent", group: "beyond", stages: [],
-      name: "H2H: 0→1 career-prep product, pricing and launch",
+      name: "H2H: 0→1 career-prep product, pricing, growth and launch",
       short: "H2H at Cogent", when: "Aug 2025 – Jun 2026",
-      amt: { v: "~300", u: "sign-ups in 2 months", p: "result" }, sub: "from ~65",
-      hook: "Discovery, pricing and a funnel that grew sign-ups without more budget.",
+      amt: { v: "~$110K", u: "in 2 months at 6x ROAS", p: "result" }, sub: "4.6× sign-ups",
+      hook: "A pricing pivot and a launch, grown by fixing the funnel rather than adding budget.",
       summary: {
-        problem: "US job seekers bought CV writers, LinkedIn optimisers and coaching separately and still got no callbacks.",
-        did: "Drove the pivot from a long-cycle ISA product to H2H, an expert-led program: 60+ customer interviews, 15+ competitors benchmarked, 3-tier pricing tied to SLAs, and a 4-team launch.",
-        landed: "~65 to ~300 sign-ups in two months through funnel-led CTAs, including a free résumé audit built into the website with Engineering."
+        problem: "US job seekers bought CV writers, LinkedIn optimisers and coaching separately and still got no callbacks. Pay after placement (an ISA) left revenue waiting on each customer's job search.",
+        did: "Pivoted to upfront pricing after 60+ interviews, a payback analysis and 15+ rivals. Built a 5-metric LinkedIn score (0–100), packaged ~30 features into 3 tiers ($499 to $1,300), launched to 2 personas in 5 US states, and cut form drop-off from 72% to 45%.",
+        landed: "~$110K in 2 months at 6x ROAS; sign-ups up 4.6×; 8% of 1,500+ sign-ups paid; 22% of $499 buyers upgraded; 90% of 150+ orders on time."
       },
-      metrics: [{ v: "60+", l: "customer interviews", p: "result" }, { v: "$499 / $899 / $1,300", l: "3 tiers for a ~$349K launch target", p: "target" }, { v: "4 teams", l: "aligned on MVP scope", p: "result" }],
+      metrics: [{ v: "~$110K", l: "in 2 months at 6x ROAS", p: "result" }, { v: "4.6×", l: "sign-ups: form drop-off 72% to 45%, 18% of drop-offs recovered via email", p: "result" }, { v: "8%", l: "of 1,500+ sign-ups converted to paid via a free résumé audit", p: "result" }, { v: "22%", l: "of $499 buyers upgraded across 3 tiers", p: "result" }, { v: "90%", l: "on-time delivery across 150+ orders", p: "result" }],
       details: [["Role", "Assistant Project Manager – Product Development"]] },
 
     { id: "perfora", ref: "BYD-02", seller: "mu", group: "beyond", stages: [],
@@ -538,7 +538,7 @@ window.NJ = {
       body: "Co-launched 2 revenue-generating ventures (₹7.3 L combined) and a live AI product.", cases: ["foundit", "wowworld", "perfora", "prolectro"] },
     { id: "cogent", type: "Work", org: "Cogent Infotech", logo: "assets/logos/cogent.svg",
       title: "Assistant Project Manager – Product Development", when: "Aug 2025 – Jun 2026", where: "Remote", status: "Closed",
-      body: "Drove the pivot to H2H, an expert-led US career-prep program: discovery, MVP scope, pricing and GTM. Sign-ups grew from ~65 to ~300 in two months.", cases: ["h2h"] },
+      body: "Took H2H, an expert-led US career-prep program, from pay-after-placement to upfront pricing and launched it: ~$110K in 2 months at 6x ROAS, sign-ups up 4.6×, 90% of 150+ orders delivered on time.", cases: ["h2h"] },
     { id: "phonepe-sr", type: "Work", org: "PhonePe", logo: "assets/logos/phonepe.svg",
       title: "Senior Operations Analyst – Product & Payments", when: "Jul 2024 – Jun 2025", where: "Bengaluru", status: "Closed",
       body: "Owned integrations, routing and onboarding for ₹500+ Cr TPV travel merchants, including ixigo and MakeMyTrip.",
